@@ -1,9 +1,9 @@
 import UIKit
+import AVFoundation
 import Entrance
 
 final class ViewController: UIViewController {
     let label: UILabel = UILabel()
-    let button: UIButton = UIButton(configuration: .filled())
     let presentationQueue = PresentationQueue()
     
     override func viewDidLoad() {
@@ -11,12 +11,10 @@ final class ViewController: UIViewController {
         view.backgroundColor = .systemBackground
         
         label.text = "Hello, World!"
-        button.configuration?.title = "Button"
         
         let stackView = UIStackView(
             arrangedSubviews: [
-                label,
-                button
+                label
             ]
         )
         stackView.axis = .vertical
@@ -36,11 +34,6 @@ final class ViewController: UIViewController {
             ),
         ])
         
-        button.addAction(UIAction { [unowned self] _ in
-            let vc = ChildViewController()
-            present(vc, animated: true)
-        }, for: .primaryActionTriggered)
-        
         presentationQueue.enqueue {
             let vc = UIAlertController(title: "Hello", message: "welcome", preferredStyle: .alert)
             vc.addAction(UIAlertAction(title: "OK", style: .cancel))
@@ -52,6 +45,10 @@ final class ViewController: UIViewController {
         }
         
         presentationQueue.enqueue {
+            await AVCaptureDevice.requestAccess(for: .video)
+        }
+        
+        presentationQueue.enqueue {
             let vc = UIAlertController(title: "Hello", message: "choose", preferredStyle: .actionSheet)
             vc.addAction(UIAlertAction(title: "Option 1", style: .default))
             vc.addAction(UIAlertAction(title: "Cancel", style: .cancel))
@@ -59,10 +56,11 @@ final class ViewController: UIViewController {
         }
         
         Task {
-            for await vc in presentationQueue.presentableViewControllers() {
-                present(vc, animated: true)
+            for await presenter in presentationQueue.presenters() {
+                await presenter.present(in: self)
             }
         }
     }
 }
+
 

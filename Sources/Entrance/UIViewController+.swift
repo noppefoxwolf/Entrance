@@ -19,14 +19,16 @@ extension UIViewController {
         method_exchangeImplementations(originalMethod, swizzledMethod)
     }()
 
-    @objc func swizzled_viewDidDisappear(_ animated: Bool) {
-        // Call the original implementation
+    @objc
+    func swizzled_viewDidDisappear(_ animated: Bool) {
         self.swizzled_viewDidDisappear(animated)
         
         customDidDisappear()
     }
 
     func customDidDisappear() {
-        NotificationCenter.default.postViewDidDisappear(self)
+        NotificationCenter.default.postDidDisappear(self)
     }
 }
+
+

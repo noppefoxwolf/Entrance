@@ -1,9 +1,12 @@
 import UIKit
 
 final class ChildViewController: UIViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = .systemBackground
+    
+    override func loadView() {
+        let label = UILabel()
+        label.backgroundColor = .systemBackground
+        label.text = "Hello, World!"
+        view = label
     }
 }
 
