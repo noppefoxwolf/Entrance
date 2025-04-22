@@ -1,14 +1,14 @@
 # Entrance
 
-A simple Swift library for sequentially managing the presentation of UIViewControllers.
+A simple Swift library for managing sequential presentation of UIViewControllers
 
 ## Overview
 
-Entrance provides a convenient queue system for displaying multiple UIViewControllers in sequence. For example:
+Entrance provides a convenient queue system for presenting multiple UIViewControllers in sequence. For example:
 
-- Display multiple screens in sequence for an onboarding tutorial
-- Show alerts and action sheets consecutively
-- Present multiple screens sequentially based on user interaction
+- Displaying multiple screens in an onboarding tutorial
+- Presenting alerts and action sheets in succession
+- Sequentially showing screens based on user interactions
 
 This library leverages Swift Concurrency and uses AsyncSequence to easily manage the presentation of view controllers.
 
@@ -21,7 +21,7 @@ This library leverages Swift Concurrency and uses AsyncSequence to easily manage
 
 ### Swift Package Manager
 
-Add the following to the `dependencies` in your `Package.swift` file:
+Add the following to your `Package.swift` file's `dependencies`:
 
 ```swift
 dependencies: [
@@ -47,25 +47,39 @@ presentationQueue.enqueue {
 }
 
 presentationQueue.enqueue {
-    // Second view controller to display
+    // Second view controller to present
     MySecondViewController()
 }
 
-// Asynchronously present view controllers in sequence
+// Present view controllers sequentially in an asynchronous manner
 Task {
-    for await vc in presentationQueue.presentableViewControllers() {
-        present(vc, animated: true)
+    for await presenter in presentationQueue.presenters() {
+        await presenter.present(in: self)
     }
+}
+```
+
+## Adding Actions
+
+You can also add arbitrary asynchronous actions to the queue, not just UIViewControllers:
+
+```swift
+// Add an action to the queue
+presentationQueue.enqueue {
+    // Some asynchronous operation
+    await loadData()
+    // Some processing
+    print("Action completed")
 }
 ```
 
 ## Features
 
-- **Easy to Use**: Manage complex presentation logic with a simple API
-- **Asynchronous Support**: Fully integrated with Swift Concurrency
-- **Automatic Presentation Management**: Automatically presents the next view controller after the previous one is dismissed
+- **Ease of Use**: Manage complex presentation logic with a simple API
+- **Async Support**: Fully integrated with Swift Concurrency
+- **Automatic Presentation Management**: Automatically presents the next view controller when the previous one is dismissed
 
 ## License
 
-This project is released under the MIT license. See [LICENSE](LICENSE) for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
