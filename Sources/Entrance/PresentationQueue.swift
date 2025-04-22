@@ -58,7 +58,7 @@ public final class PresentationQueue: Sendable {
             let object = item.make()
             presentingObjectID = ObjectIdentifier(object)
             
-            var presentation = Presenter()
+            let presentation = Presenter()
             presentation.onPresent = { await item.presentation($0, object) }
             continuation.yield(presentation)
         }
