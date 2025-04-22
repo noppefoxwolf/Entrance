@@ -18,7 +18,9 @@ extension NotificationCenter {
 }
 
 extension NotificationCenter {
+    /// A class representing a UIViewController disappearance notification.
     final public class ViewDidDisappearNotification: Sendable {
+        /// The identifier of the object that disappeared.
         let id: ObjectIdentifier
         
         init(id: ObjectIdentifier) {
@@ -26,8 +28,12 @@ extension NotificationCenter {
         }
     }
     
+    /// A class for handling UIViewController disappearance notifications as an asynchronous sequence.
     final public class ViewDidDisappearNotifications : AsyncSequence, Sendable {
+        /// An iterator for sequentially retrieving UIViewController disappearance notifications.
         public struct Iterator : AsyncIteratorProtocol {
+            /// Asynchronously retrieves the next UIViewController disappearance notification.
+            /// - Returns: The next disappearance notification, or nil if none can be retrieved.
             public func next() async -> ViewDidDisappearNotification? {
                 let notifications = NotificationCenter.default.notifications(named: .didDisappear)
                 let iterator = notifications.makeAsyncIterator()
@@ -38,6 +44,8 @@ extension NotificationCenter {
             }
         }
         
+        /// Creates an asynchronous iterator for retrieving UIViewController disappearance notifications.
+        /// - Returns: An asynchronous iterator.
         final public func makeAsyncIterator() -> Iterator { Iterator() }
     }
 }

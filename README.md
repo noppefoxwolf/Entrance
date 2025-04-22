@@ -66,10 +66,7 @@ You can also add arbitrary asynchronous actions to the queue, not just UIViewCon
 ```swift
 // Add an action to the queue
 presentationQueue.enqueue {
-    // Some asynchronous operation
-    await loadData()
-    // Some processing
-    print("Action completed")
+    await AVCaptureDevice.requestAccess(for: .video)
 }
 ```
 
