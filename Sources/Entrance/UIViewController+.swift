@@ -27,7 +27,9 @@ extension UIViewController {
     }
 
     func customDidDisappear() {
-        NotificationCenter.default.postDidDisappear(self)
+        if isBeingDismissed || isMovingFromParent {
+            NotificationCenter.default.postDidDisappear(self)
+        }
     }
 }
 
