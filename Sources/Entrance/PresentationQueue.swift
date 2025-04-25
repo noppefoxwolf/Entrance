@@ -83,7 +83,8 @@ public final class PresentationQueue: Sendable {
                 yield(item)
             }
             
-            for await notification in NotificationCenter.default.viewDidDisappearNotifications() {
+            let stream = NotificationCenter.default.viewDidDisappearNotifications()
+            for await notification in stream {
                 if notification.id == presentingObjectID {
                     if let item = dequeue() {
                         yield(item)
