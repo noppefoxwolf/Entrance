@@ -45,6 +45,10 @@ final class ViewController: UIViewController {
             ChildViewController()
         }
         
+        presentationQueue.enqueue({
+            ChildViewController()
+        }, presentation: { $0.navigationController?.pushViewController($1, animated: true) })
+        
         presentationQueue.enqueue {
             await AVCaptureDevice.requestAccess(for: .video)
         }
