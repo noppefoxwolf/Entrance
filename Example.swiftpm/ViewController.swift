@@ -1,6 +1,7 @@
 import UIKit
 import AVFoundation
 import Entrance
+import SwiftUI
 
 final class ViewController: UIViewController {
     let label: UILabel = UILabel()
@@ -55,7 +56,26 @@ final class ViewController: UIViewController {
             return vc
         }
         
+        struct RootView: View {
+            @Environment(\.dismiss)
+            var dismiss
+            
+            var body: some View {
+                Button {
+                    dismiss()
+                } label: {
+                    Text("dismiss")
+                }
+            }
+        }
+        
+        DispatchQueue.main.async { [unowned self] in
+            let vc = UIHostingController(rootView: RootView())
+            present(vc, animated: true)
+        }
+        
         Task {
+            await presentationQueue.waitUntilPresentable(in: self)
             for await presenter in presentationQueue.presenters() {
                 await presenter.present(in: self)
             }

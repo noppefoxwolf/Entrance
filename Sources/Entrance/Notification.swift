@@ -35,6 +35,9 @@ extension NotificationCenter {
             /// Asynchronously retrieves the next UIViewController disappearance notification.
             /// - Returns: The next disappearance notification, or nil if none can be retrieved.
             public func next() async -> ViewDidDisappearNotification? {
+                if Task.isCancelled {
+                    return nil
+                }
                 let notifications = NotificationCenter.default.notifications(named: .didDisappear)
                 let iterator = notifications.makeAsyncIterator()
                 let notification = await iterator.next()

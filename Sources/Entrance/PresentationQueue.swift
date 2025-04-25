@@ -43,6 +43,21 @@ public final class PresentationQueue: Sendable {
         items.append(item)
     }
     
+    /// Waits until the view controller becomes presentable.
+    /// This method pauses execution until any currently presented view controller is dismissed.
+    /// - Parameter viewController: The view controller that wants to present another view controller.
+    public func waitUntilPresentable(in viewController: UIViewController) async {
+        if let vc = viewController.presentedViewController {
+            let stream = NotificationCenter.default.viewDidDisappearNotifications()
+            for await event in stream {
+                let id = ObjectIdentifier(vc)
+                if event.id == id {
+                    break
+                }
+            }
+        }
+    }
+    
     func dequeue() -> (any PresentationQueueItem)? {
         guard !items.isEmpty else { return nil }
         return items.removeFirst()
@@ -64,7 +79,7 @@ public final class PresentationQueue: Sendable {
         }
         
         let task = Task {
-            if let item = dequeue() {
+            if let item = dequeue(), presentingObjectID == nil {
                 yield(item)
             }
             
