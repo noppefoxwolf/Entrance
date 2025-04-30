@@ -9,7 +9,7 @@ public final class PresentationQueue: Sendable {
     }
     
     struct Item<T: AnyObject & Sendable>: PresentationQueueItem {
-        let make: @Sendable @MainActor () -> T
+        let make: @MainActor () -> T
         let presentation: @Sendable (UIViewController, T) async -> Void
     }
     var items: [any PresentationQueueItem] = []
@@ -21,8 +21,8 @@ public final class PresentationQueue: Sendable {
     ///   - presentation: A custom presentation logic closure.
     ///     Defaults to modal presentation.
     public func enqueue<T: UIViewController>(
-        _ make: @escaping @Sendable @MainActor () -> T,
-        presentation: @escaping @Sendable @MainActor (_ parent: UIViewController, _ object: T) -> Void = { $0.present($1, animated: true) }
+        _ make: @escaping @MainActor () -> T,
+        presentation: @escaping @MainActor (_ parent: UIViewController, _ object: T) -> Void = { $0.present($1, animated: true) }
     ) {
         let item = Item(make: make, presentation: presentation)
         items.append(item)
