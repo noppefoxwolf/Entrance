@@ -11,8 +11,5 @@ struct ContentView: UIViewControllerRepresentable {
     func updateUIViewController(
         _ uiViewController: UIViewControllerType,
         context: Context
-    ) {
-        
-    }
+    ) {}
 }
-
