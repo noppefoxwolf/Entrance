@@ -89,7 +89,9 @@ final class ViewController: UIViewController {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            self?.navigateToNotificationDestination()
+            Task { @MainActor in
+                self?.navigateToNotificationDestination()
+            }
         }
     }
     
@@ -125,3 +127,4 @@ final class ViewController: UIViewController {
         try await center.add(request)
     }
 }
+

@@ -30,7 +30,10 @@ final class AppDelegate: NSObject, UIApplicationDelegate, @MainActor UNUserNotif
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
     ) -> Bool {
         UNUserNotificationCenter.current().delegate = self
-        if launchOptions?[.remoteNotification] != nil || launchOptions?[.localNotification] != nil {
+        // Note: `.localNotification` launch option is deprecated since iOS 10.
+        // For local notifications, rely on UNUserNotificationCenterDelegate callbacks
+        // such as `userNotificationCenter(_:didReceive:withCompletionHandler:)`.
+        if launchOptions?[.remoteNotification] != nil {
             launchedFromNotification = true
         }
         return true
