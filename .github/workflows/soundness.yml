@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - Docs/**
+      - README.md
+      - LICENSE
+  pull_request:
+    types: [opened, reopened, synchronize]
+    paths-ignore:
+      - Docs/**
+      - README.md
+      - LICENSE
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  soundness:
+    name: Soundness
+    uses: swiftlang/github-workflows/.github/workflows/soundness.yml@0.0.1
+    with:
+      api_breakage_check_enabled: false
+      docs_check_enabled: false
+      license_header_check_enabled: false
+      format_check_enabled: false
