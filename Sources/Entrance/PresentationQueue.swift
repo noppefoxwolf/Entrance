@@ -14,6 +14,23 @@ public final class PresentationQueue: Sendable {
     }
     var items: [any PresentationQueueItem] = []
     var presentingObjectID: ObjectIdentifier? = nil
+    private var continuation: AsyncStream<Presenter>.Continuation?
+
+    /// Dequeues the next item and yields a Presenter if the queue is idle.
+    private func yieldNextIfPossible() {
+        guard presentingObjectID == nil, let item = dequeue() else { return }
+        yield(item)
+    }
+
+    /// Builds a Presenter for the given queue item and yields it to the stream.
+    private func yield(_ item: some PresentationQueueItem) {
+        let object = item.make()
+        presentingObjectID = ObjectIdentifier(object)
+
+        let presentation = Presenter()
+        presentation.onPresent = { await item.presentation($0, object) }
+        continuation?.yield(presentation)
+    }
     
     /// Adds a UIViewController to the presentation queue.
     /// - Parameters:
@@ -26,12 +43,13 @@ public final class PresentationQueue: Sendable {
     ) {
         let item = Item(make: make, presentation: presentation)
         items.append(item)
+        yieldNextIfPossible()
     }
     
     /// Adds an asynchronous action to the queue.
     /// - Parameter action: The asynchronous action to execute.
     public func enqueue(
-        _ action: @escaping @Sendable () async -> Void
+        _ action: @escaping @MainActor @Sendable () async -> Void
     ) {
         let item = Item<Token>(
             make: { .init() },
@@ -41,6 +59,7 @@ public final class PresentationQueue: Sendable {
             }
         )
         items.append(item)
+        yieldNextIfPossible()
     }
     
     /// Waits until the view controller becomes presentable.
@@ -68,35 +87,26 @@ public final class PresentationQueue: Sendable {
     /// - Returns: An async stream of presenters.
     public func presenters() -> AsyncStream<Presenter> {
         let (stream, continuation) = AsyncStream<Presenter>.makeStream()
+        self.continuation = continuation
         
-        func yield(_ item: some PresentationQueueItem) {
-            let object = item.make()
-            presentingObjectID = ObjectIdentifier(object)
-            
-            let presentation = Presenter()
-            presentation.onPresent = { await item.presentation($0, object) }
-            continuation.yield(presentation)
-        }
-        
-        let task = Task {
-            if let item = dequeue(), presentingObjectID == nil {
-                yield(item)
-            }
+        let task = Task { @MainActor in
+            yieldNextIfPossible()
             
             let stream = NotificationCenter.default.viewDidDisappearNotifications()
             for await notification in stream {
                 if notification.id == presentingObjectID {
-                    if let item = dequeue() {
-                        yield(item)
-                    }
+                    presentingObjectID = nil
+                    yieldNextIfPossible()
                 }
             }
         }
-        continuation.onTermination = { _ in
+        self.continuation?.onTermination = { [weak self] _ in
             task.cancel()
+            Task { @MainActor in
+                self?.continuation = nil
+            }
         }
         
         return stream
     }
 }
-
